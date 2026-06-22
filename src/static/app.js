@@ -20,6 +20,9 @@ document.addEventListener("DOMContentLoaded", () => {
   const userInfo = document.getElementById("user-info");
   const displayName = document.getElementById("display-name");
   const logoutButton = document.getElementById("logout-button");
+  const themeToggleButton = document.getElementById("theme-toggle");
+  const themeToggleIcon = document.getElementById("theme-toggle-icon");
+  const themeToggleText = document.getElementById("theme-toggle-text");
   const loginModal = document.getElementById("login-modal");
   const loginForm = document.getElementById("login-form");
   const closeLoginModal = document.querySelector(".close-login-modal");
@@ -43,6 +46,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Authentication state
   let currentUser = null;
+  let currentTheme = "light";
 
   // Time range mappings for the dropdown
   const timeRanges = {
@@ -116,6 +120,34 @@ document.addEventListener("DOMContentLoaded", () => {
     // Set authentication class on body
     updateAuthBodyClass();
   }
+
+  function updateThemeToggleUI() {
+    if (currentTheme === "dark") {
+      themeToggleIcon.textContent = "☀️";
+      themeToggleText.textContent = "Light Mode";
+      themeToggleButton.setAttribute("aria-label", "Switch to light mode");
+    } else {
+      themeToggleIcon.textContent = "🌙";
+      themeToggleText.textContent = "Dark Mode";
+      themeToggleButton.setAttribute("aria-label", "Switch to dark mode");
+    }
+  }
+
+  function applyTheme(theme) {
+    currentTheme = theme === "dark" ? "dark" : "light";
+    document.body.classList.toggle("dark-mode", currentTheme === "dark");
+    localStorage.setItem("themeMode", currentTheme);
+    updateThemeToggleUI();
+  }
+
+  function initializeTheme() {
+    const savedTheme = localStorage.getItem("themeMode");
+    applyTheme(savedTheme === "dark" ? "dark" : "light");
+  }
+
+  themeToggleButton.addEventListener("click", () => {
+    applyTheme(currentTheme === "dark" ? "light" : "dark");
+  });
 
   // Validate user session with the server
   async function validateUserSession(username) {
@@ -899,6 +931,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   // Initialize app
+  initializeTheme();
   checkAuthentication();
   initializeFilters();
   fetchActivities();
