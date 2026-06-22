@@ -304,6 +304,27 @@ document.addEventListener("DOMContentLoaded", () => {
     return details.schedule;
   }
 
+  // Build social sharing links for an activity
+  function buildShareLinks(activityName, details) {
+    const sharePageUrl = new URL(window.location.href);
+    sharePageUrl.searchParams.set("activity", activityName);
+
+    const shareText = `Check out this activity at Mergington High: ${activityName} - ${details.description}`;
+    const shareUrl = sharePageUrl.toString();
+
+    return {
+      whatsapp: `https://wa.me/?text=${encodeURIComponent(
+        `${shareText} ${shareUrl}`
+      )}`,
+      facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(
+        shareUrl
+      )}&quote=${encodeURIComponent(shareText)}`,
+      x: `https://x.com/intent/tweet?text=${encodeURIComponent(
+        shareText
+      )}&url=${encodeURIComponent(shareUrl)}`,
+    };
+  }
+
   // Function to determine activity type (this would ideally come from backend)
   function getActivityType(activityName, description) {
     const name = activityName.toLowerCase();
@@ -498,6 +519,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Format the schedule using the new helper function
     const formattedSchedule = formatSchedule(details);
+    const shareLinks = buildShareLinks(name, details);
 
     // Create activity tag
     const tagHtml = `
@@ -528,6 +550,12 @@ document.addEventListener("DOMContentLoaded", () => {
         <span class="tooltip-text">Regular meetings at this time throughout the semester</span>
       </p>
       ${capacityIndicator}
+      <div class="share-actions">
+        <span class="share-label">Share:</span>
+        <a class="share-button whatsapp-share" href="${shareLinks.whatsapp}" target="_blank" rel="noopener noreferrer">WhatsApp</a>
+        <a class="share-button facebook-share" href="${shareLinks.facebook}" target="_blank" rel="noopener noreferrer">Facebook</a>
+        <a class="share-button x-share" href="${shareLinks.x}" target="_blank" rel="noopener noreferrer">X</a>
+      </div>
       <div class="participants-list">
         <h5>Current Participants:</h5>
         <ul>
@@ -860,6 +888,15 @@ document.addEventListener("DOMContentLoaded", () => {
     setDayFilter,
     setTimeRangeFilter,
   };
+
+  // Read optional activity from URL for direct sharing links
+  const activityFromUrl = new URLSearchParams(window.location.search).get(
+    "activity"
+  );
+  if (activityFromUrl) {
+    searchQuery = activityFromUrl;
+    searchInput.value = activityFromUrl;
+  }
 
   // Initialize app
   checkAuthentication();
